@@ -8,7 +8,6 @@ import akka.actor.ActorSystem
 import akka.persistence.cassandra.testkit.CassandraLauncher
 import akka.testkit.{ImplicitSender, TestDuration, TestKit}
 import com.lightbend.akka.sample.HelloPersistentActor.{Get, Save}
-import com.typesafe.config.ConfigFactory
 import org.scalatest.{BeforeAndAfterAll, FlatSpecLike, Matchers}
 
 import scala.concurrent.duration.DurationLong
@@ -16,18 +15,12 @@ import scala.language.postfixOps
 
 class HelloPersistentActorSpec(_system: ActorSystem)
   extends TestKit(_system)
-  with ImplicitSender
-  with Matchers
-  with FlatSpecLike
-  with BeforeAndAfterAll {
+    with ImplicitSender
+    with Matchers
+    with FlatSpecLike
+    with BeforeAndAfterAll {
 
-  def this() = this(ActorSystem("HelloPersistentActorSpec", ConfigFactory.parseString(
-    s"""
-       |akka {
-       |  persistence.journal.plugin = "cassandra-journal"
-       |  persistence.snapshot-store.plugin = "cassandra-snapshot-store"
-       |}
-     """.stripMargin)))
+  def this() = this(ActorSystem("HelloPersistentActorSpec", CassandraConfig.config))
 
   override def beforeAll: Unit = {
     val cassandraDirectory = new File("target/" + system.name)
@@ -35,7 +28,7 @@ class HelloPersistentActorSpec(_system: ActorSystem)
       cassandraDirectory,
       configResource = CassandraLauncher.DefaultTestConfigResource,
       clean = true,
-      port = 0
+      port = CassandraConfig.cassandraPort
     )
 
   }
